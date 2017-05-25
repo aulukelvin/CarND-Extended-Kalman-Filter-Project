@@ -3,6 +3,8 @@ CMakeFiles/
 CMakeScripts/
 ExtendedKF.xcodeproj/
 cmake_install.cmake
+Debug/
+ExtendedKF.build/
 
 # silly macOS
 .DS_Store
