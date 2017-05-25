@@ -1,3 +1,9 @@
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+ExtendedKF.xcodeproj/
+cmake_install.cmake
+
 # silly macOS
 .DS_Store
 
