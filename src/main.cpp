@@ -103,11 +103,13 @@ int main()
     	  gt_values(1) = y_gt; 
     	  gt_values(2) = vx_gt;
     	  gt_values(3) = vy_gt;
-    	  ground_truth.push_back(gt_values);
           
-          //Call ProcessMeasurment(meas_package) for Kalman filter
-    	  fusionEKF.ProcessMeasurement(meas_package);    	  
-
+        if (sensor_type.compare("R") == 0) {
+        ground_truth.push_back(gt_values);
+          
+        //Call ProcessMeasurment(meas_package) for Kalman filter
+        fusionEKF.ProcessMeasurement(meas_package);
+        
     	  //Push the current estimated x,y positon from the Kalman filter's state vector
 
     	  VectorXd estimate(4);
@@ -129,6 +131,8 @@ int main()
           json msgJson;
           msgJson["estimate_x"] = p_x;
           msgJson["estimate_y"] = p_y;
+          cout << "~~~~ "<< sensor_type<< " - "<< x_gt << ", " << y_gt << ", " << vx_gt << ", " << vy_gt << " ~~~~"<<endl;
+          
           msgJson["rmse_x"] =  RMSE(0);
           msgJson["rmse_y"] =  RMSE(1);
           msgJson["rmse_vx"] = RMSE(2);
@@ -136,7 +140,19 @@ int main()
           auto msg = "42[\"estimate_marker\"," + msgJson.dump() + "]";
           // std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
-	  
+        } else {
+          json msgJson;
+          msgJson["estimate_x"] = 0;
+          msgJson["estimate_y"] = 0;
+          msgJson["rmse_x"] =  0.1;
+          msgJson["rmse_y"] =  0.1;
+          msgJson["rmse_vx"] = 0.1;
+          msgJson["rmse_vy"] = 0.1;
+          auto msg = "42[\"estimate_marker\"," + msgJson.dump() + "]";
+          // std::cout << msg << std::endl;
+          ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
+
+        }
         }
       } else {
         
