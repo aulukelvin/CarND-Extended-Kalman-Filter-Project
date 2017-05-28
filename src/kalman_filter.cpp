@@ -58,17 +58,7 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   /**
    * update the state by using Kalman Filter equations
    */
-  VectorXd z_pred = VectorXd(3);
-  z_pred(0) = sqrt(x_(0) * x_(0) + x_(1)*x_(1));
-  
-  if (fabs(x_[0]) > 0.001) {
-    z_pred(1) = atan2(x_(1), x_(0));
-    z_pred(2) = (x_(0)*x_(2) + x_(1)*x_(3))/ z_pred(0);
-  } else {
-    z_pred(1) = 0.0;
-    z_pred(2) = 0.0;
-  }
-  
+  VectorXd z_pred = h(x_);
   VectorXd y = z - z_pred;
   MatrixXd Hjt = Hj_.transpose();
   MatrixXd S = Hj_ * P_ * Hjt + R_;
@@ -79,6 +69,7 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   std::cout << "H " << H_ << std::endl;
   std::cout << "Hj " << Hj_ << std::endl;
   std::cout << "z_pred " << z_pred << std::endl;
+  std::cout << "z " << z << std::endl;
   
   std::cout << "y " << y << std::endl;
   std::cout << "S " << S << std::endl;
@@ -90,4 +81,25 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   long x_size = x_.size();
   MatrixXd I = MatrixXd::Identity(x_size, x_size);
   P_ = (I - K * Hj_) * P_;
+}
+
+
+VectorXd KalmanFilter::h(const VectorXd &x) {
+  VectorXd z_pred = VectorXd(3);
+  
+  float px = x(0);
+  float py = x(1);
+  float vx = x(2);
+  float vy = x(3);
+  
+  z_pred(0) = sqrt(px*px + py*py);
+  
+  if (fabs(x[0]) > 0.0001) {
+    z_pred(1) = atan(py/px);
+    z_pred(2) = (px*vx + py*vy) / z_pred(0);
+  } else {
+    z_pred(1) = 0.0;
+    z_pred(2) = 0.0;
+  }
+  return z_pred;
 }
