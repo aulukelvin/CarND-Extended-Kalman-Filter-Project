@@ -60,51 +60,51 @@ int main()
           
           MeasurementPackage meas_package;
           istringstream iss(sensor_measurment);
-    	  long long timestamp;
+          long long timestamp;
 
-    	  // reads first element from the current line
-    	  string sensor_type;
-    	  iss >> sensor_type;
+          // reads first element from the current line
+          string sensor_type;
+          iss >> sensor_type;
 
-    	  if (sensor_type.compare("L") == 0) {
-      	  		meas_package.sensor_type_ = MeasurementPackage::LASER;
-          		meas_package.raw_measurements_ = VectorXd(2);
-          		float px;
-      	  		float py;
-          		iss >> px;
-          		iss >> py;
-          		meas_package.raw_measurements_ << px, py;
-          		iss >> timestamp;
-          		meas_package.timestamp_ = timestamp;
+          if (sensor_type.compare("L") == 0) {
+            meas_package.sensor_type_ = MeasurementPackage::LASER;
+            meas_package.raw_measurements_ = VectorXd(2);
+            float px;
+            float py;
+            iss >> px;
+            iss >> py;
+            meas_package.raw_measurements_ << px, py;
+            iss >> timestamp;
+            meas_package.timestamp_ = timestamp;
           } else if (sensor_type.compare("R") == 0) {
 
-      	  		meas_package.sensor_type_ = MeasurementPackage::RADAR;
-          		meas_package.raw_measurements_ = VectorXd(3);
-          		float ro;
-      	  		float theta;
-      	  		float ro_dot;
-          		iss >> ro;
-          		iss >> theta;
-          		iss >> ro_dot;
-          		meas_package.raw_measurements_ << ro,theta, ro_dot;
-          		iss >> timestamp;
-          		meas_package.timestamp_ = timestamp;
+            meas_package.sensor_type_ = MeasurementPackage::RADAR;
+            meas_package.raw_measurements_ = VectorXd(3);
+            float ro;
+            float theta;
+            float ro_dot;
+            iss >> ro;
+            iss >> theta;
+            iss >> ro_dot;
+            meas_package.raw_measurements_ << ro,theta, ro_dot;
+            iss >> timestamp;
+            meas_package.timestamp_ = timestamp;
           }
           float x_gt;
-    	  float y_gt;
-    	  float vx_gt;
-    	  float vy_gt;
-    	  iss >> x_gt;
-    	  iss >> y_gt;
-    	  iss >> vx_gt;
-    	  iss >> vy_gt;
-    	  VectorXd gt_values(4);
-    	  gt_values(0) = x_gt;
-    	  gt_values(1) = y_gt; 
-    	  gt_values(2) = vx_gt;
-    	  gt_values(3) = vy_gt;
+          float y_gt;
+          float vx_gt;
+          float vy_gt;
+          iss >> x_gt;
+          iss >> y_gt;
+          iss >> vx_gt;
+          iss >> vy_gt;
+          VectorXd gt_values(4);
+          gt_values(0) = x_gt;
+          gt_values(1) = y_gt;
+          gt_values(2) = vx_gt;
+          gt_values(3) = vy_gt;
           
-        if (sensor_type.compare("R") == 0) {
+          if (sensor_type.compare("R") == 0) {
         ground_truth.push_back(gt_values);
           
         //Call ProcessMeasurment(meas_package) for Kalman filter
@@ -132,6 +132,7 @@ int main()
           msgJson["estimate_x"] = p_x;
           msgJson["estimate_y"] = p_y;
           cout << "~~~~ "<< sensor_type<< " - "<< x_gt << ", " << y_gt << ", " << vx_gt << ", " << vy_gt << " ~~~~"<<endl;
+          cout << "~~~~ "<< "RMSE " << " - "<< RMSE << " ~~~~"<<endl;
           
           msgJson["rmse_x"] =  RMSE(0);
           msgJson["rmse_y"] =  RMSE(1);
