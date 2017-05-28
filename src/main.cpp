@@ -29,28 +29,28 @@ std::string hasData(std::string s) {
 int main()
 {
   uWS::Hub h;
-
+  
   // Create a Kalman Filter instance
   FusionEKF fusionEKF;
-
+  
   // used to compute the RMSE later
   Tools tools;
   vector<VectorXd> estimations;
   vector<VectorXd> ground_truth;
-
+  
   h.onMessage([&fusionEKF,&tools,&estimations,&ground_truth](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
-
+    
     if (length && length > 2 && data[0] == '4' && data[1] == '2')
     {
-
+      
       auto s = hasData(std::string(data));
       if (s != "") {
-      	
+        
         auto j = json::parse(s);
-
+        
         std::string event = j[0].get<std::string>();
         
         if (event == "telemetry") {
@@ -61,11 +61,11 @@ int main()
           MeasurementPackage meas_package;
           istringstream iss(sensor_measurment);
           long long timestamp;
-
+          
           // reads first element from the current line
           string sensor_type;
           iss >> sensor_type;
-
+          
           if (sensor_type.compare("L") == 0) {
             meas_package.sensor_type_ = MeasurementPackage::LASER;
             meas_package.raw_measurements_ = VectorXd(2);
@@ -77,7 +77,7 @@ int main()
             iss >> timestamp;
             meas_package.timestamp_ = timestamp;
           } else if (sensor_type.compare("R") == 0) {
-
+            
             meas_package.sensor_type_ = MeasurementPackage::RADAR;
             meas_package.raw_measurements_ = VectorXd(3);
             float ro;
@@ -104,56 +104,56 @@ int main()
           gt_values(2) = vx_gt;
           gt_values(3) = vy_gt;
           
-          if (sensor_type.compare("R") == 0) {
-        ground_truth.push_back(gt_values);
-          
-        //Call ProcessMeasurment(meas_package) for Kalman filter
-        fusionEKF.ProcessMeasurement(meas_package);
-        
-    	  //Push the current estimated x,y positon from the Kalman filter's state vector
-
-    	  VectorXd estimate(4);
-
-    	  double p_x = fusionEKF.ekf_.x_(0);
-    	  double p_y = fusionEKF.ekf_.x_(1);
-    	  double v1  = fusionEKF.ekf_.x_(2);
-    	  double v2 = fusionEKF.ekf_.x_(3);
-
-    	  estimate(0) = p_x;
-    	  estimate(1) = p_y;
-    	  estimate(2) = v1;
-    	  estimate(3) = v2;
-    	  
-    	  estimations.push_back(estimate);
-
-    	  VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
-
-          json msgJson;
-          msgJson["estimate_x"] = p_x;
-          msgJson["estimate_y"] = p_y;
-          cout << "~~~~ "<< sensor_type<< " - "<< x_gt << ", " << y_gt << ", " << vx_gt << ", " << vy_gt << " ~~~~"<<endl;
-          cout << "~~~~ "<< "RMSE " << " - "<< RMSE << " ~~~~"<<endl;
-          
-          msgJson["rmse_x"] =  RMSE(0);
-          msgJson["rmse_y"] =  RMSE(1);
-          msgJson["rmse_vx"] = RMSE(2);
-          msgJson["rmse_vy"] = RMSE(3);
-          auto msg = "42[\"estimate_marker\"," + msgJson.dump() + "]";
-          // std::cout << msg << std::endl;
-          ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
-        } else {
-          json msgJson;
-          msgJson["estimate_x"] = 0;
-          msgJson["estimate_y"] = 0;
-          msgJson["rmse_x"] =  0.1;
-          msgJson["rmse_y"] =  0.1;
-          msgJson["rmse_vx"] = 0.1;
-          msgJson["rmse_vy"] = 0.1;
-          auto msg = "42[\"estimate_marker\"," + msgJson.dump() + "]";
-          // std::cout << msg << std::endl;
-          ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
-
-        }
+//          if (sensor_type.compare("R") == 0) {
+            ground_truth.push_back(gt_values);
+            
+            //Call ProcessMeasurment(meas_package) for Kalman filter
+            fusionEKF.ProcessMeasurement(meas_package);
+            
+            //Push the current estimated x,y positon from the Kalman filter's state vector
+            
+            VectorXd estimate(4);
+            
+            double p_x = fusionEKF.ekf_.x_(0);
+            double p_y = fusionEKF.ekf_.x_(1);
+            double v1  = fusionEKF.ekf_.x_(2);
+            double v2 = fusionEKF.ekf_.x_(3);
+            
+            estimate(0) = p_x;
+            estimate(1) = p_y;
+            estimate(2) = v1;
+            estimate(3) = v2;
+            
+            estimations.push_back(estimate);
+            
+            VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
+            
+            json msgJson;
+            msgJson["estimate_x"] = p_x;
+            msgJson["estimate_y"] = p_y;
+//            cout << "~~~~ "<< sensor_type<< " - "<< x_gt << ", " << y_gt << ", " << vx_gt << ", " << vy_gt << " ~~~~"<<endl;
+//            cout << "~~~~ "<< "RMSE " << " - "<< RMSE << " ~~~~"<<endl;
+//            
+            msgJson["rmse_x"] =  RMSE(0);
+            msgJson["rmse_y"] =  RMSE(1);
+            msgJson["rmse_vx"] = RMSE(2);
+            msgJson["rmse_vy"] = RMSE(3);
+            auto msg = "42[\"estimate_marker\"," + msgJson.dump() + "]";
+            // std::cout << msg << std::endl;
+            ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
+//          } else {
+//            json msgJson;
+//            msgJson["estimate_x"] = 0;
+//            msgJson["estimate_y"] = 0;
+//            msgJson["rmse_x"] =  0.1;
+//            msgJson["rmse_y"] =  0.1;
+//            msgJson["rmse_vx"] = 0.1;
+//            msgJson["rmse_vy"] = 0.1;
+//            auto msg = "42[\"estimate_marker\"," + msgJson.dump() + "]";
+//            // std::cout << msg << std::endl;
+//            ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
+//            
+//          }
         }
       } else {
         
@@ -161,9 +161,9 @@ int main()
         ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
       }
     }
-
+    
   });
-
+  
   // We don't need this since we're not using HTTP but if it's removed the program
   // doesn't compile :-(
   h.onHttpRequest([](uWS::HttpResponse *res, uWS::HttpRequest req, char *data, size_t, size_t) {
@@ -178,16 +178,16 @@ int main()
       res->end(nullptr, 0);
     }
   });
-
+  
   h.onConnection([&h](uWS::WebSocket<uWS::SERVER> ws, uWS::HttpRequest req) {
     std::cout << "Connected!!!" << std::endl;
   });
-
+  
   h.onDisconnection([&h](uWS::WebSocket<uWS::SERVER> ws, int code, char *message, size_t length) {
     ws.close();
     std::cout << "Disconnected" << std::endl;
   });
-
+  
   int port = 4567;
   if (h.listen(port))
   {

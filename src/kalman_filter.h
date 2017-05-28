@@ -20,9 +20,6 @@ public:
   // measurement matrix
   Eigen::MatrixXd H_;
 
-  // measurement matrix
-  Eigen::MatrixXd Hj_;
-
   // measurement covariance matrix
   Eigen::MatrixXd R_;
 

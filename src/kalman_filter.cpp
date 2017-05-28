@@ -19,39 +19,31 @@ void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
 }
 
 void KalmanFilter::Predict() {
-    /**
-     * predict the state
-     */
-    x_ = F_ * x_;
-    MatrixXd Ft = F_.transpose();
-    P_ = F_ * P_ * Ft + Q_;
+  /**
+   * predict the state
+   */
+  x_ = F_ * x_;
+  MatrixXd Ft = F_.transpose();
+  P_ = F_ * P_ * Ft + Q_;
 }
 
 void KalmanFilter::Update(const VectorXd &z) {
-    /**
-     * update the state by using Kalman Filter equations
-     */
-    VectorXd z_pred = H_ * x_;
-    VectorXd y = z - z_pred;
-    MatrixXd Ht = H_.transpose();
-    MatrixXd S = H_ * P_ * Ht + R_;
-    MatrixXd Si = S.inverse();
-    MatrixXd PHt = P_ * Ht;
-    MatrixXd K = PHt * Si;
+  /**
+   * update the state by using Kalman Filter equations
+   */
+  VectorXd z_pred = H_ * x_;
+  VectorXd y = z - z_pred;
+  MatrixXd Ht = H_.transpose();
+  MatrixXd S = H_ * P_ * Ht + R_;
+  MatrixXd Si = S.inverse();
+  MatrixXd PHt = P_ * Ht;
+  MatrixXd K = PHt * Si;
   
-  std::cout << "H " << H_ << std::endl;
-  std::cout << "z_pred " << z_pred << std::endl;
-  
-  std::cout << "y " << y << std::endl;
-  std::cout << "S " << S << std::endl;
-  std::cout << "PHt " << PHt << std::endl;
-  
-  std::cout << "K " << K << std::endl;
-    //new estimate
-    x_ = x_ + (K * y);
-    long x_size = x_.size();
-    MatrixXd I = MatrixXd::Identity(x_size, x_size);
-    P_ = (I - K * H_) * P_;
+  //new estimate
+  x_ = x_ + (K * y);
+  long x_size = x_.size();
+  MatrixXd I = MatrixXd::Identity(x_size, x_size);
+  P_ = (I - K * H_) * P_;
 }
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
@@ -64,30 +56,20 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   
   while (y(1) < -PI)
     y(1) += 2 * PI;
-		while (y(1) > PI)
-      y(1) -= 2 * PI;
-
-  MatrixXd Hjt = Hj_.transpose();
-  MatrixXd S = Hj_ * P_ * Hjt + R_;
+  while (y(1) > PI)
+    y(1) -= 2 * PI;
+  
+  MatrixXd Hjt = H_.transpose();
+  MatrixXd S = H_ * P_ * Hjt + R_;
   MatrixXd Si = S.inverse();
   MatrixXd PHt = P_ * Hjt;
   MatrixXd K = PHt * Si;
   
-  std::cout << "H " << H_ << std::endl;
-  std::cout << "Hj " << Hj_ << std::endl;
-  std::cout << "z_pred " << z_pred << std::endl;
-  std::cout << "z " << z << std::endl;
-  
-  std::cout << "y " << y << std::endl;
-  std::cout << "S " << S << std::endl;
-  std::cout << "PHt " << PHt << std::endl;
-  
-  std::cout << "K " << K << std::endl;
   //new estimate
   x_ = x_ + (K * y);
   long x_size = x_.size();
   MatrixXd I = MatrixXd::Identity(x_size, x_size);
-  P_ = (I - K * Hj_) * P_;
+  P_ = (I - K * H_) * P_;
 }
 
 
