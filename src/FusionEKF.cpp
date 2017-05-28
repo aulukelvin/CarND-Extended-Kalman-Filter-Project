@@ -82,8 +82,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       double rho_dot = measurement_pack.raw_measurements_(2);
       double px = rho * cos(phi);
       double py = rho * sin(phi);
-      double vx = 0;
-      double vy = 0;
+      double vx = rho_dot * cos(phi);
+      double vy = rho_dot * sin(phi);
       ekf_.x_  << px, py, vx, vy;
     }
     previous_timestamp_ = measurement_pack.timestamp_;
@@ -93,7 +93,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   // first measurement
   cout << "EKF: " << endl;
   //compute the time elapsed between the current and previous measurements
-  float dt = (measurement_pack.timestamp_ - previous_timestamp_)/ 100000;	//dt - expressed in seconds
+  float dt = (measurement_pack.timestamp_ - previous_timestamp_)/ 1000000.0;	//dt - expressed in seconds
     previous_timestamp_ = measurement_pack.timestamp_;
     
   float dt_2 = dt * dt;
@@ -113,7 +113,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     
   //predict
   ekf_.Predict();
-  std::cout << "~~x_= " << ekf_.x_ << std::endl;
+  std::cout << "~~predicted x_= " << ekf_.x_ << std::endl;
   ekf_.H_ = H_laser_;
   
   if (measurement_pack.sensor_type_ == measurement_pack.RADAR) {
@@ -131,6 +131,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   }
   
     
-  std::cout << "x_= " << ekf_.x_ << std::endl;
+  std::cout << "~~updated x_= " << ekf_.x_ << std::endl;
   std::cout << "P_= " << ekf_.P_ << std::endl;
 }
