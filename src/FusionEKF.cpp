@@ -53,8 +53,8 @@ FusionEKF::FusionEKF() {
   ekf_.Q_ = MatrixXd(4, 4);
     
   //set the acceleration noise components
-  noise_ax = 2;
-  noise_ay = 2;
+  noise_ax = 5;
+  noise_ay = 5;
 }
 
 /**
@@ -75,7 +75,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
      * Remember: you'll need to convert radar from polar to cartesian coordinates.
      */
     if (measurement_pack.sensor_type_ == measurement_pack.LASER) {
-      ekf_.x_ << measurement_pack.raw_measurements_, 0, 0;
+      ekf_.x_ << measurement_pack.raw_measurements_, 0.0, 0.0;
     } else {
       double rho = measurement_pack.raw_measurements_(0);
       double phi = measurement_pack.raw_measurements_(1);
@@ -106,10 +106,10 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   
   //set the process covariance matrix Q
   ekf_.Q_ = MatrixXd(4, 4);
-  ekf_.Q_ <<  dt_4*noise_ax/4,                0,  dt_3*noise_ax/2,                0,
-                            0,  dt_4*noise_ay/4,                0,  dt_3*noise_ay/2,
-              dt_3*noise_ax/2,                0,    dt_2*noise_ax,                0,
-                            0,  dt_3*noise_ay/2,                0,    dt_2*noise_ay;
+  ekf_.Q_ <<  dt_4*noise_ax/4.0,                0.0,  dt_3*noise_ax/2.0,                0.0,
+                            0.0,  dt_4*noise_ay/4.0,                0.0,  dt_3*noise_ay/2.0,
+              dt_3*noise_ax/2.0,                0.0,    dt_2*noise_ax,                0.0,
+                            0.0,  dt_3*noise_ay/2.0,                0.0,    dt_2*noise_ay;
     
   //predict
   ekf_.Predict();

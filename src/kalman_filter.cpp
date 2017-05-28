@@ -52,7 +52,7 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
    */
   VectorXd z_pred = h(x_);
   VectorXd y = z - z_pred;
-  const float PI = 3.1415926536;
+  const double PI = 3.14159265358979323846;
   
   while (y(1) < -PI)
     y(1) += 2 * PI;
@@ -82,16 +82,16 @@ VectorXd KalmanFilter::h(const VectorXd &x) {
   float vy = x(3);
   z_pred(0) = sqrt(px*px + py*py);
   
-  if (fabs(px) > 0.001) {
+  if (fabs(px) > 0.0001) {
     z_pred(1) = atan2(py, px);
     
-    if (fabs(z_pred(0)) > 0.001) {
+    if (fabs(z_pred(0)) > 0.0001) {
       z_pred(2) = (px*vx + py*vy) / z_pred(0);
     } else {
       z_pred(2) = 0.0;
     }
   } else {
-    z_pred(1) = px;
+    z_pred(1) = 0.0;
     z_pred(2) = 0.0;
   }
   return z_pred;
